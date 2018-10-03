@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="shop.dao.SpotMapper" >
+  <resultMap id="BaseResultMap" type="shop.pojo.Spot" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="plc_id" property="plcId" jdbcType="INTEGER" />
+    <result column="spot_name" property="spotName" jdbcType="VARCHAR" />
+    <result column="spot_desc" property="spotDesc" jdbcType="VARCHAR" />
+    <result column="modbus_address" property="modbusAddress" jdbcType="INTEGER" />
+    <result column="value" property="value" jdbcType="VARCHAR" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, plc_id, spot_name, spot_desc, modbus_address, value, created
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from ty_pro_01
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from ty_pro_01
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="shop.pojo.Spot" >
+    insert into ty_control_int_0 (id, plc_id, spot_name, spot_desc, modbus_address, value, created)
+    values (#{id,jdbcType=INTEGER}, #{plcId,jdbcType=INTEGER}, #{spotName,jdbcType=VARCHAR}, 
+      #{spotDesc,jdbcType=VARCHAR}, #{modbusAddress,jdbcType=INTEGER}, #{value,jdbcType=VARCHAR}, 
+      #{created,jdbcType=TIMESTAMP})
+  </insert>
+
+  <insert id="insertSpotInt" parameterType="java.util.ArrayList">
+    insert into ty_control_int_0(id, plc_id, spot_name, spot_desc, modbus_address, value, created)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.id},#{item.plcId},#{item.spotName},#{item.spotDesc},#{item.modbusAddress}, #{item.value}, now())
+    </foreach>
+  </insert>
+
+  <insert id="insertSpotBool" parameterType="java.util.ArrayList">
+    insert into ty_control_bool_0(id, plc_id, spot_name, spot_desc, modbus_address, value, created)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.id},#{item.plcId},#{item.spotName},#{item.spotDesc},#{item.modbusAddress}, #{item.value}, now())
+    </foreach>
+  </insert>
+
+  <insert id="insertSelective" parameterType="shop.pojo.Spot" >
+    insert into ty_pro_01
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="plcId != null" >
+        plc_id,
+      </if>
+      <if test="spotName != null" >
+        spot_name,
+      </if>
+      <if test="spotDesc != null" >
+        spot_desc,
+      </if>
+      <if test="modbusAddress != null" >
+        modbus_address,
+      </if>
+      <if test="value != null" >
+        value,
+      </if>
+      <if test="created != null" >
+        created,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="plcId != null" >
+        #{plcId,jdbcType=INTEGER},
+      </if>
+      <if test="spotName != null" >
+        #{spotName,jdbcType=VARCHAR},
+      </if>
+      <if test="spotDesc != null" >
+        #{spotDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="modbusAddress != null" >
+        #{modbusAddress,jdbcType=INTEGER},
+      </if>
+      <if test="value != null" >
+        #{value,jdbcType=VARCHAR},
+      </if>
+      <if test="created != null" >
+        #{created,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="shop.pojo.Spot" >
+    update ty_pro_01
+    <set >
+      <if test="plcId != null" >
+        plc_id = #{plcId,jdbcType=INTEGER},
+      </if>
+      <if test="spotName != null" >
+        spot_name = #{spotName,jdbcType=VARCHAR},
+      </if>
+      <if test="spotDesc != null" >
+        spot_desc = #{spotDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="modbusAddress != null" >
+        modbus_address = #{modbusAddress,jdbcType=INTEGER},
+      </if>
+      <if test="value != null" >
+        value = #{value,jdbcType=VARCHAR},
+      </if>
+      <if test="created != null" >
+        created = #{created,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="shop.pojo.Spot" >
+    update ty_pro_01
+    set plc_id = #{plcId,jdbcType=INTEGER},
+      spot_name = #{spotName,jdbcType=VARCHAR},
+      spot_desc = #{spotDesc,jdbcType=VARCHAR},
+      modbus_address = #{modbusAddress,jdbcType=INTEGER},
+      value = #{value,jdbcType=VARCHAR},
+      created = #{created,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

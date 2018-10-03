@@ -1,0 +1,185 @@
+package shop.excl;
+
+import com.alibaba.fastjson.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
+import shop.dao.TaskMapper;
+import shop.devs.TaskDevice;
+import shop.domain.AddrSpotModel;
+import shop.domain.CellModel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Task {
+
+
+    @Autowired
+    private ReadExcelService readExcelService;
+
+    @Autowired
+    private TaskDevice taskDevices;
+
+    @Autowired
+    private TaskMapper taskMapper;
+
+    /**
+     * 任务1
+     */
+    private static List<AddrSpotModel> taskList1;
+
+    /**
+     * 任务4
+     */
+    private static List<AddrSpotModel> taskList4;
+
+
+    public void readTaskList4() {
+
+        if (taskList4 == null) {
+            taskList4 = readExcelService.getTaskList4();
+            System.out.println("--Task,4,首次加载,完成");
+        }
+//        test();
+//        if (StringUtils.isEmpty(ip)) {
+//            setIp(globalConfig.get("ip").toString());
+//            setPort(globalConfig.get("port").toString());
+//            setDeviceId(globalConfig.get("deviceId").toString());
+//            System.out.println("ip: " + getIp() + ", port: " + getPort() + ",deviceId: " + getDeviceId());
+//        }
+        if (!CollectionUtils.isEmpty(taskList4)) {
+            for (AddrSpotModel addrSpotModel : taskList4) {
+                if (addrSpotModel == null) {
+                    System.out.println("PLC 读取数据时，解析taskList4，对象存在空值!");
+                    continue;
+                }
+                if (addrSpotModel.getnFrom() == 0 || addrSpotModel.getAddNum() == 0) {
+                    System.out.println("PLC 读取数据时，解析taskList4，起始位，或步长为空！ object :" + JSONObject.toJSONString(addrSpotModel));
+                    continue;
+                }
+                int nfrom = addrSpotModel.getnFrom();
+                int nNum = addrSpotModel.getAddNum();
+                List<Float> rs = taskDevices.readDevicesTask4(nfrom, nNum);
+//                System.out.println("rs" + rs);
+                if (CollectionUtils.isEmpty(rs) || rs.size() != addrSpotModel.getAddNum()) {
+                    System.out.println("Task.readTaskList4 单组读取为空！,分组号:" + addrSpotModel.getGroupCode() + "起始位：" + nfrom);
+                }
+                addrSpotModel.setPlcValue(rs);
+
+                buildCellModel(addrSpotModel);
+            }
+        }
+
+//        try {
+//            taskDevices.readDevicesTask3(ip, Integer.parseInt(port), Integer.parseInt(deviceId), 1,2);
+//        } catch (NumberFormatException e) {
+//            System.out.println("readDevicesTask3 Exception" + e);
+//        }
+//        System.out.println(IP);
+
+
+    }
+
+    /**
+     * 组建入库模型cellModel
+     */
+    private void buildCellModel(AddrSpotModel addrSpotModel) {
+
+        if (addrSpotModel == null) {
+            System.out.println("组建入库模型cellModel addrSpotModel is null");
+        }
+
+        List<Float> listSpot = addrSpotModel.getPlcValue();
+
+        if (CollectionUtils.isEmpty(listSpot)) {
+            System.out.println("组建入库模型cellModel listSpot is null");
+        }
+
+        List<CellModel> listCellModel = new ArrayList<CellModel>();
+
+        try {
+            for (int i = 0; i < listSpot.size(); i++) {
+                CellModel cellModel = new CellModel();
+                cellModel.setId(String.valueOf(addrSpotModel.getId().get(i)));
+                cellModel.setModel(addrSpotModel.getModelCode());
+                cellModel.setCyc(addrSpotModel.getCyc());
+                cellModel.setGroupCode(addrSpotModel.getGroupCode());
+                cellModel.setType(addrSpotModel.getType());
+                cellModel.setDesc(addrSpotModel.getSpotDesc().get(i));
+                cellModel.setPlcAdd(String.valueOf(addrSpotModel.getPlcValue().get(i)));
+                cellModel.setName(addrSpotModel.getSpotDescCN().get(i));
+                listCellModel.add(cellModel);
+            }
+        } catch (Exception e) {
+            System.out.println("组建入库模型cellModel Exception " + e);
+        }
+        try {
+            taskMapper.insertList(listCellModel);
+            System.out.println("功能码，4，写入数据成功！！！");
+        } catch (Exception e) {
+            System.out.println("插入数据，异常：" + e);
+        }
+    }
+
+    /**
+     * 测试
+     */
+    private void test() {
+
+        List<Integer> listPot = new ArrayList<Integer>();
+        listPot.add(2);
+        listPot.add(4);
+        listPot.add(6);
+
+        List<String> listPotName = new ArrayList<String>();
+        listPotName.add("iWTm0202");
+        listPotName.add("iWTm0203");
+        listPotName.add("iWTm0204");
+
+        List<String> listPotDesc = new ArrayList<String>();
+        listPotDesc.add("浇水时间0202");
+        listPotDesc.add("浇水时间0203");
+        listPotDesc.add("浇水时间0203");
+
+
+        AddrSpotModel addrSpotModel = new AddrSpotModel();
+        addrSpotModel.setListSpot(listPot);
+        addrSpotModel.setnFrom(2);
+        addrSpotModel.setAddNum(3);
+        addrSpotModel.setSpotDescCN(listPotDesc);
+        addrSpotModel.setSpotDesc(listPotName);
+
+
+        List<String> listPotName2 = new ArrayList<String>();
+        listPotName2.add("iWTm0202");
+        listPotName2.add("iWTm0203");
+        listPotName2.add("iWTm0204");
+
+        List<String> listPotDesc2 = new ArrayList<String>();
+        listPotDesc2.add("浇水时间0202");
+        listPotDesc2.add("浇水时间0203");
+        listPotDesc2.add("浇水时间0203");
+
+
+        List<Integer> listPot2 = new ArrayList<Integer>();
+        listPot2.add(8);
+        listPot2.add(10);
+        listPot2.add(12);
+
+        AddrSpotModel addrSpotModel2 = new AddrSpotModel();
+        addrSpotModel2.setListSpot(listPot2);
+        addrSpotModel2.setnFrom(8);
+        addrSpotModel2.setAddNum(3);
+        addrSpotModel2.setSpotDescCN(listPotDesc2);
+        addrSpotModel2.setSpotDesc(listPotName2);
+
+        List<AddrSpotModel> taskListTest = new ArrayList<AddrSpotModel>();
+
+        taskListTest.add(addrSpotModel);
+        taskListTest.add(addrSpotModel2);
+
+        taskList4.clear();
+        taskList4 = taskListTest;
+
+    }
+}

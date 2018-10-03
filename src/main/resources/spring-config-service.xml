@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <!--<util:properties id="configSpot" local-override="true" location="classpath:spot.properties" />-->
+    <!--<bean id="configSpot" class="org.springframework.beans.factory.config.PropertiesFactoryBean">-->
+    <!--<property name="location" value="classpath:spot.properties"/>-->
+    <!--<property name="fileEncoding" value="UTF-8"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="loadConfigService" class="shop.serviceImpl.LoadConfigService"  init-method="init">-->
+    <!--<property name="configSpot" ref="configSpot"/>-->
+    <!--</bean>-->
+
+    <bean name="test" class="shop.serviceImpl.Test">
+    </bean>
+
+    <!--<bean id="modBusTask" class="shop.serviceImpl.ModBusTask">-->
+    <!--&lt;!&ndash; 任务定时器开关，1为打开，0为关闭 3000地址 &ndash;&gt;-->
+    <!--<property name="switchMap">-->
+    <!--<map>-->
+    <!--<entry key="inputRegister3" value="1" />-->
+    <!--<entry key="inputRegister4" value="1" />-->
+    <!--<entry key="inputRegister1" value="1" />-->
+    <!--</map>-->
+    <!--</property>-->
+
+    <!--&lt;!&ndash;入库标识，1为入库，0为不入库 3000地址 &ndash;&gt;-->
+    <!--<property name="writeDataMap">-->
+    <!--<map>-->
+    <!--<entry key="inputRegister3" value="1" />-->
+    <!--<entry key="inputRegister4" value="1" />-->
+    <!--<entry key="inputRegister1" value="1" />-->
+    <!--</map>-->
+    <!--</property>-->
+
+    <!--&lt;!&ndash;数据库表标签，对应方法，对应表名字 &ndash;&gt;-->
+    <!--<property name="tableIndexMap">-->
+    <!--<map>-->
+    <!--<entry key="inputRegister" value="int_0" />-->
+    <!--<entry key="readDigitalInput" value="bool_0" />-->
+    <!--</map>-->
+    <!--</property>-->
+
+    <!--</bean>-->
+
+    <!--<task:scheduled-tasks>-->
+    <!--<task:scheduled ref="modBusTask" method="readInputRegister3" cron="*/5 * * * * ?" />-->
+    <!--&lt;!&ndash;<task:scheduled ref="modBusTask" method="inputRegister" cron="*/5 * * * * ?" />&ndash;&gt;-->
+    <!--</task:scheduled-tasks>-->
+
+
+    <!-- ==================================================================================== -->
+
+    <bean id="globalConfig" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:global.properties"/>
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
+
+    <bean id="readExcelService" class="shop.excl.ReadExcelService" init-method="init">
+        <property name="globalConfig" ref="globalConfig"/>
+    </bean>
+
+    <bean id="taskDevices" class="shop.devs.TaskDevice">
+        <!--<property name="globalConfig" ref="globalConfig"/>-->
+    </bean>
+
+    <bean id="Task" class="shop.excl.Task">
+        <!--<property name="globalConfig" ref="globalConfig"/>-->
+    </bean>
+
+    <task:scheduled-tasks>
+        <task:scheduled ref="Task" method="readTaskList4" cron="*/5 * * * * ?"/>
+        <!--<task:scheduled ref="modBusTask" method="inputRegister" cron="*/5 * * * * ?" />-->
+    </task:scheduled-tasks>
+</beans>
