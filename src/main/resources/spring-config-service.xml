@@ -67,12 +67,12 @@
         <!--<property name="globalConfig" ref="globalConfig"/>-->
     </bean>
 
-    <bean id="Task" class="shop.excl.Task">
+    <bean id="task" class="shop.excl.Task">
         <!--<property name="globalConfig" ref="globalConfig"/>-->
     </bean>
 
     <task:scheduled-tasks>
-        <task:scheduled ref="Task" method="readTaskList4" cron="*/5 * * * * ?"/>
+        <task:scheduled ref="task" method="readTaskList4" cron="*/5 * * * * ?"/>
         <!--<task:scheduled ref="modBusTask" method="inputRegister" cron="*/5 * * * * ?" />-->
     </task:scheduled-tasks>
 </beans>

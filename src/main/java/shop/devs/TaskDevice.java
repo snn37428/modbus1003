@@ -3,23 +3,27 @@ package shop.devs;
 import modbus.protocol.ModbusAnswer;
 import modbus.protocol.ModbusProtocol;
 import modbus.protocol.ModbusRequest;
+import shop.excl.ReadExcelService;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TaskDevice {
 
+    private ReadExcelService rexs;
+
     private static String ip;
     private static String port;
     private static String deviceId;
 
-    private static boolean bDebug = true;
-    private static management.DevicesManagement manager = new management.DevicesManagement(bDebug);
-    private int nServerListPos = manager.add(ip, Integer.valueOf(port));
-    private static ModbusRequest req = new ModbusRequest();
-    private static ModbusAnswer ans = new ModbusAnswer();
+    private management.DevicesManagement manager = null;
+    private int nServerListPos;
+    private ModbusRequest req = new ModbusRequest();
+    private ModbusAnswer ans = new ModbusAnswer();
 
     public List<Float> readDevicesTask4(int nFrom, int nNum) {
+        manager = new management.DevicesManagement(true);
+        nServerListPos = manager.add(ip, Integer.valueOf(port));
         List<Float> responseDate = new ArrayList<Float>();
         if (nServerListPos != -1) {
             int nServerDataType = ModbusProtocol.DATATYPE_INT32;
@@ -74,10 +78,10 @@ public class TaskDevice {
      * 读取静态数据
      */
     private void loadIp() {
-//        setIp(res.getIp());
-//        setPort(res.getPort());
-//        setDeviceId(res.getDeviceId());
-//        System.out.println("ip: " + getIp() + ", port: " + getPort() + ",deviceId: " + getDeviceId());
+        setIp(rexs.getIp());
+        setPort(rexs.getPort());
+        setDeviceId(rexs.getDeviceId());
+        System.out.println("ip: " + getIp() + ", port: " + getPort() + ",deviceId: " + getDeviceId());
     }
 
     public static String getIp() {
@@ -102,5 +106,13 @@ public class TaskDevice {
 
     public static void setDeviceId(String deviceId) {
         TaskDevice.deviceId = deviceId;
+    }
+
+    public ReadExcelService getRexs() {
+        return rexs;
+    }
+
+    public void setRexs(ReadExcelService rexs) {
+        this.rexs = rexs;
     }
 }
