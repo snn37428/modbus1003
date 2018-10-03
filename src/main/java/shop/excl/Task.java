@@ -34,14 +34,24 @@ public class Task {
     private static final int model3 = 3;
 
     /**
-     * 任务1
+     * 功能码1
      */
-    private static List<AddrSpotModel> taskList3;
+    private static final int model1 = 1;
 
     /**
      * 任务4
      */
     private static List<AddrSpotModel> taskList4;
+
+    /**
+     * 任务3
+     */
+    private static List<AddrSpotModel> taskList3;
+
+    /**
+     * 任务1
+     */
+    private static List<AddrSpotModel> taskList1;
 
 
     /**
@@ -68,7 +78,7 @@ public class Task {
             }
             int nfrom = addrSpotModel.getnFrom();
             int nNum = addrSpotModel.getAddNum();
-            List<Float> rs = taskDevices.readDevicesTask4(nfrom, nNum);
+            List<String> rs = taskDevices.readDevicesTask4(nfrom, nNum);
 //                System.out.println("rs" + rs);
             if (CollectionUtils.isEmpty(rs) || rs.size() != addrSpotModel.getAddNum()) {
                 System.out.println("Task.readTaskList4 单组读取为空！,分组号:" + addrSpotModel.getGroupCode() + "起始位：" + nfrom);
@@ -79,7 +89,6 @@ public class Task {
         }
 
     }
-
 
     /**
      * 任务3
@@ -105,14 +114,49 @@ public class Task {
                 }
                 int nfrom = addrSpotModel.getnFrom();
                 int nNum = addrSpotModel.getAddNum();
-                List<Float> rs = taskDevices.readDevicesTask3(nfrom, nNum);
-//                System.out.println("rs" + rs);
+                List<String> rs = taskDevices.readDevicesTask3(nfrom, nNum);
+                //System.out.println("rs" + rs);
                 if (CollectionUtils.isEmpty(rs) || rs.size() != addrSpotModel.getAddNum()) {
                     System.out.println("Task.readTaskList3 单组读取为空！,分组号:" + addrSpotModel.getGroupCode() + "起始位：" + nfrom);
                 }
                 addrSpotModel.setPlcValue(rs);
 
                 buildCellModel(addrSpotModel, model3);
+            }
+        }
+    }
+
+    /**
+     * 任务1
+     */
+    public void readTaskList1() {
+        if (taskList1 == null) {
+            taskList1 = readExcelService.getTaskList1();
+            System.out.println("--Task,3,首次加载,完成");
+        }
+//      test();
+        if (CollectionUtils.isEmpty(taskList1)) {
+            System.out.println("Task.taskList1，任务内存为空！！！");
+        }
+        if (!CollectionUtils.isEmpty(taskList1)) {
+            for (AddrSpotModel addrSpotModel : taskList1) {
+                if (addrSpotModel == null) {
+                    System.out.println("PLC 读取数据时，解析taskList1，对象存在空值!");
+                    continue;
+                }
+                if (addrSpotModel.getnFrom() == 0 || addrSpotModel.getAddNum() == 0) {
+                    System.out.println("PLC 读取数据时，解析taskList1，起始位，或步长为空！ object :" + JSONObject.toJSONString(addrSpotModel));
+                    continue;
+                }
+                int nfrom = addrSpotModel.getnFrom();
+                int nNum = addrSpotModel.getAddNum();
+                List<String> rs = taskDevices.readDevicesTask1(nfrom, nNum);
+                // System.out.println("rs" + rs);
+                if (CollectionUtils.isEmpty(rs) || rs.size() != addrSpotModel.getAddNum()) {
+                    System.out.println("Task.readTaskList1 单组读取为空！,分组号:" + addrSpotModel.getGroupCode() + "起始位：" + nfrom);
+                }
+                addrSpotModel.setPlcValue(rs);
+                buildCellModel(addrSpotModel, model1);
             }
         }
     }
@@ -126,7 +170,7 @@ public class Task {
             System.out.println("组建入库模型cellModel addrSpotModel is null");
         }
 
-        List<Float> listSpot = addrSpotModel.getPlcValue();
+        List<String> listSpot = addrSpotModel.getPlcValue();
 
         if (CollectionUtils.isEmpty(listSpot)) {
             System.out.println("组建入库模型cellModel listSpot is null");
@@ -143,7 +187,8 @@ public class Task {
                 cellModel.setGroupCode(addrSpotModel.getGroupCode());
                 cellModel.setType(addrSpotModel.getType());
                 cellModel.setDesc(addrSpotModel.getSpotDesc().get(i));
-                cellModel.setPlcAdd(String.valueOf(addrSpotModel.getPlcValue().get(i)));
+                cellModel.setModbusAddr(String.valueOf(addrSpotModel.getListSpot().get(i)));
+                cellModel.setValue(String.valueOf(addrSpotModel.getPlcValue().get(i)));
                 cellModel.setName(addrSpotModel.getSpotDescCN().get(i));
                 listCellModel.add(cellModel);
             }
@@ -165,7 +210,7 @@ public class Task {
     private void test() {
 
         List<Integer> listPot = new ArrayList<Integer>();
-        listPot.add(2);
+        listPot.add(0);
         listPot.add(4);
         listPot.add(6);
 
@@ -216,8 +261,8 @@ public class Task {
         taskListTest.add(addrSpotModel);
         taskListTest.add(addrSpotModel2);
 
-        taskList3.clear();
-        taskList3 = taskListTest;
+        taskList1.clear();
+        taskList1 = taskListTest;
 
     }
 }

@@ -58,7 +58,7 @@ public class AddrSpotModel {
      * 读取的PLC数值
      * @return
      */
-    private List<Float> plcValue;
+    private List<String> plcValue;
 
     /**
      * 分组编码
@@ -146,11 +146,11 @@ public class AddrSpotModel {
         this.nEnd = nEnd;
     }
 
-    public List<Float> getPlcValue() {
+    public List<String> getPlcValue() {
         return plcValue;
     }
 
-    public void setPlcValue(List<Float> plcValue) {
+    public void setPlcValue(List<String> plcValue) {
         this.plcValue = plcValue;
     }
 

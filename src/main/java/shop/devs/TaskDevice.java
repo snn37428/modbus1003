@@ -47,8 +47,8 @@ public class TaskDevice {
 
     private static String configSwtich = "";
     private static int nServerDataType;
-    private static int nConvMode ;
-    private static int nJavaDataType ;
+    private static int nConvMode;
+    private static int nJavaDataType;
 
 
     /**
@@ -58,10 +58,10 @@ public class TaskDevice {
      * @param nNum
      * @return
      */
-    public List<Float> readDevicesTask4(int nFrom, int nNum) {
+    public List<String> readDevicesTask4(int nFrom, int nNum) {
         loadIp();
         // 结果返回体
-        List<Float> responseDate = new ArrayList<Float>();
+        List<String> responseDate = new ArrayList<String>();
         try {
             if (manager == null) {
                 manager = new management.DevicesManagement(true);
@@ -104,7 +104,7 @@ public class TaskDevice {
                         //选择方法与Java端数据类型有关
                         //int data = ans.getIntByIndex(i);
                         float data = ans.getFloatByIndex(i - nFrom);
-                        responseDate.add(data);
+                        responseDate.add(String.valueOf(data));
                     }
                 }
             }
@@ -121,10 +121,10 @@ public class TaskDevice {
      * @param nDataNum
      * @return
      */
-    public List<Float> readDevicesTask3(int nAddressFrom, int nDataNum) {
+    public List<String> readDevicesTask3(int nAddressFrom, int nDataNum) {
         loadIp();
         // 结果返回体
-        List<Float> responseDate = new ArrayList<Float>();
+        List<String> responseDate = new ArrayList<String>();
         if (manager == null) {
             manager = new management.DevicesManagement(true);
             nServerListPos = manager.add(ip, Integer.valueOf(port));
@@ -143,7 +143,7 @@ public class TaskDevice {
 
                 nError = req.sendReadInputRegister(Integer.parseInt(deviceId), nAddressFrom, nDataNum);
                 if (nError == ModbusProtocol.ERROR_NONE) {
-//                    System.out.println("sendReadInputRegister-参数设置有效");
+                    // System.out.println("sendReadInputRegister-参数设置有效");
                 } else {
                     System.out.println(ModbusProtocol.getErrorMessage(nError));
                 }
@@ -151,7 +151,7 @@ public class TaskDevice {
                 //2.发送指令
                 nError = manager.write(nServerListPos, req);
                 if (nError == ModbusProtocol.ERROR_NONE) {
-//                    System.out.println("sendReadInputRegister-发送有效");
+                    //System.out.println("sendReadInputRegister-发送有效");
                 } else {
                     System.out.println(ModbusProtocol.getErrorMessage(nError));
                 }
@@ -159,7 +159,7 @@ public class TaskDevice {
                 //3.接收数据
                 nError = manager.read(nServerListPos, ans);
                 if (nError == ModbusProtocol.ERROR_NONE) {
-//                    System.out.println("sendReadInputRegister-接收有效");
+                    // System.out.println("sendReadInputRegister-接收有效");
                 }
 
                 //4.接收数据成功，则通过该方法读取相应数据
@@ -170,12 +170,72 @@ public class TaskDevice {
                         //选择的数据类型，与setConvertMode方法中设置的Java端数据类型有关
                         //int data = ans.getIntByIndex(i);
                         float data = ans.getFloatByIndex(i);
-                        responseDate.add(data);
+                        responseDate.add(String.valueOf(data));
                     }
                 }
             }
         } catch (Exception e) {
             System.out.println("Task.readTaskList3，读取时异常!!!" + e);
+        }
+        return responseDate;
+    }
+
+    /**
+     * 读取model1数据方法
+     *
+     * @param nCoilStart
+     * @param nCoilNum
+     * @return
+     */
+    public List<String> readDevicesTask1(int nCoilStart, int nCoilNum) {
+        loadIp();
+        // 结果返回体
+        List<String> responseDate = new ArrayList<String>();
+        if (manager == null) {
+            manager = new management.DevicesManagement(true);
+            nServerListPos = manager.add(ip, Integer.valueOf(port));
+        }
+        ModbusAnswer ans = new ModbusAnswer();
+        try {
+            if (nServerListPos != -1) {
+
+                //必须设置的内容
+                loadConfigSwtich();
+                ans.setServerDataType(nServerDataType);
+                ans.setConvertMode(nServerDataType, nConvMode, nJavaDataType);
+                int nError;
+                nError = req.sendReadCoil(Integer.parseInt(deviceId), nCoilStart, nCoilNum);
+                if (nError == ModbusProtocol.ERROR_NONE) {
+                    //System.out.println("sendReadCoil-参数设置有效");
+                } else {
+                    System.out.println(ModbusProtocol.getErrorMessage(nError));
+                }
+
+                //2.发送指令
+                nError = manager.write(nServerListPos, req);
+                if (nError == ModbusProtocol.ERROR_NONE) {
+                    //System.out.println("sendReadCoil-发送成功");
+                } else {
+                    System.out.println(ModbusProtocol.getErrorMessage(nError));
+                }
+
+                //3.接收数据
+                nError = manager.read(nServerListPos, ans);
+                if (nError == ModbusProtocol.ERROR_NONE) {
+                    //System.out.println("sendReadCoil-接收成功");
+                } else {
+                    System.out.println(ModbusProtocol.getErrorMessage(nError));
+                }
+                //4.接收数据后，通过该方法读取相应数据
+                if (nError == ModbusProtocol.ERROR_NONE) {
+                    for (int i = nCoilStart; i < nCoilStart + nCoilNum; i++) {
+                        int nCoilStatus = ans.getBitByIndex(i);
+                        responseDate.add(String.valueOf(nCoilStatus));
+                    }
+                }
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Task.readTaskList1，读取时异常!!!" + e);
         }
         return responseDate;
     }
@@ -207,6 +267,20 @@ public class TaskDevice {
             setDeviceId(rexs.getDeviceId());
             System.out.println("ip: " + getIp() + ", port: " + getPort() + ",deviceId: " + getDeviceId());
         }
+    }
+
+    /**
+     * 格式化小数点
+     *
+     * @param s
+     * @return
+     */
+    private String formatStringToInt(String s) {
+        if (s.indexOf(".") > 0) {
+            s = s.replaceAll("0+?$", "");
+            s = s.replaceAll("[.]$", "");
+        }
+        return s;
     }
 
     public static String getIp() {

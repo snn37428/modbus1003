@@ -32,9 +32,14 @@ public class CellModel {
     private String model;
 
     /**
-     * plc地址
+     * modbus地址
      */
-    private String plcAdd;
+    private String modbusAddr;
+
+    /**
+     * plc读取的值
+     */
+    private String Value;
 
     /**
      * 存储周期
@@ -43,6 +48,7 @@ public class CellModel {
 
     /**
      * 分组编码
+     *
      * @return
      */
     private String groupCode;
@@ -87,12 +93,20 @@ public class CellModel {
         this.model = model;
     }
 
-    public String getPlcAdd() {
-        return plcAdd;
+    public String getModbusAddr() {
+        return modbusAddr;
     }
 
-    public void setPlcAdd(String plcAdd) {
-        this.plcAdd = plcAdd;
+    public void setModbusAddr(String modbusAddr) {
+        this.modbusAddr = modbusAddr;
+    }
+
+    public String getValue() {
+        return Value;
+    }
+
+    public void setValue(String value) {
+        Value = value;
     }
 
     public String getCyc() {

@@ -164,7 +164,7 @@ public class ReadExcelService {
                         cellModel.setType(getCellValue(row.getCell(2)));
                         cellModel.setDesc(getCellValue(row.getCell(3)));
                         cellModel.setModel(getCellValue(row.getCell(4)));
-                        cellModel.setPlcAdd(getCellValue(row.getCell(5)));
+                        cellModel.setModbusAddr(getCellValue(row.getCell(5)));
                         cellModel.setCyc(getCellValue(row.getCell(6)));
                         cellModel.setGroupCode(getCellValue(row.getCell(7)));
                         listCellModel.add(cellModel);
@@ -205,7 +205,7 @@ public class ReadExcelService {
                     // 设置Id
                     addrSpotModel.setModelCode(listModel.get(i).getId());
                     // 设置起始点
-                    addrSpotModel.setnFrom(Integer.parseInt(this.formatStringToInt(listModel.get(i - j).getPlcAdd())));
+                    addrSpotModel.setnFrom(Integer.parseInt(this.formatStringToInt(listModel.get(i - j).getModbusAddr())));
                     // 设置组 功能码
                     addrSpotModel.setModelCode(this.formatStringToInt(listModel.get(i - j).getModel()));
                     // 设置类型 int
@@ -213,7 +213,7 @@ public class ReadExcelService {
                     // 设置周期
                     addrSpotModel.setCyc(listModel.get(i - j).getCyc());
                     // 设置结束点
-                    addrSpotModel.setnEnd(this.formatStringToInt(listModel.get(i).getPlcAdd()));
+                    addrSpotModel.setnEnd(this.formatStringToInt(listModel.get(i).getModbusAddr()));
                     newList = listModel.subList(i - j, i + 1);
                     // 设置步长
                     addrSpotModel.setAddNum(newList.size());
@@ -225,7 +225,7 @@ public class ReadExcelService {
                     List<String> listSpotDescCN = new ArrayList<String>();
                     for (CellModel cellModel : newList) {
                         listId.add(Integer.parseInt(this.formatStringToInt(cellModel.getId())));
-                        listSpot.add(Integer.parseInt(this.formatStringToInt(cellModel.getPlcAdd())));
+                        listSpot.add(Integer.parseInt(this.formatStringToInt(cellModel.getModbusAddr())));
                         listSpotDesc.add(cellModel.getName());
                         listSpotDescCN.add(cellModel.getDesc());
 
