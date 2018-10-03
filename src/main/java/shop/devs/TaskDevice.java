@@ -45,6 +45,11 @@ public class TaskDevice {
      */
     private ModbusRequest req = new ModbusRequest();
 
+    private static String configSwtich = "";
+    private static int nServerDataType;
+    private static int nConvMode ;
+    private static int nJavaDataType ;
+
 
     /**
      * 读取model4数据方法
@@ -58,23 +63,18 @@ public class TaskDevice {
         // 结果返回体
         List<Float> responseDate = new ArrayList<Float>();
         try {
-            manager = new management.DevicesManagement(true);
-            nServerListPos = manager.add(ip, Integer.valueOf(port));
+            if (manager == null) {
+                manager = new management.DevicesManagement(true);
+                nServerListPos = manager.add(ip, Integer.valueOf(port));
+            }
             ModbusAnswer ans = new ModbusAnswer();
-
             if (nServerListPos != -1) {
-                int nServerDataType = ModbusProtocol.DATATYPE_INT32;
-                int nConvMode = ModbusProtocol.CONVMOD_0123_0123;
-                int nJavaDataType = ModbusProtocol.DATATYPE_JAVA_INT32;
-
-                int nError;
-                //0.1 发送设置
-                req.setServerDataType(nServerDataType);
-                //设置为需要检查所有反馈信息
-                req.setCheckAnswer(ModbusProtocol.CHKASK_ALL);
                 //必须设置的内容
+                loadConfigSwtich();
                 ans.setServerDataType(nServerDataType);
                 ans.setConvertMode(nServerDataType, nConvMode, nJavaDataType);
+
+                int nError;
                 ans.setConvertMode(ModbusProtocol.DATATYPE_INT32, ModbusProtocol.CONVMOD_0123_3210,
                         ModbusProtocol.DATATYPE_JAVA_FLOAT32);
                 //1.设置发送指令参数
@@ -108,7 +108,7 @@ public class TaskDevice {
                     }
                 }
             }
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             System.out.println("Task.readTaskList4，读取时异常!!!" + e);
         }
         return responseDate;
@@ -125,48 +125,77 @@ public class TaskDevice {
         loadIp();
         // 结果返回体
         List<Float> responseDate = new ArrayList<Float>();
-
+        if (manager == null) {
+            manager = new management.DevicesManagement(true);
+            nServerListPos = manager.add(ip, Integer.valueOf(port));
+        }
         ModbusAnswer ans = new ModbusAnswer();
+        try {
+            if (nServerListPos != -1) {
+                //必须设置的内容
+                loadConfigSwtich();
+                ans.setServerDataType(nServerDataType);
+                ans.setConvertMode(nServerDataType, nConvMode, nJavaDataType);
 
-        ans.setConvertMode(ModbusProtocol.DATATYPE_INT32, ModbusProtocol.CONVMOD_0123_0123,
-                ModbusProtocol.DATATYPE_JAVA_INT32);
+                int nError;
+                ans.setConvertMode(ModbusProtocol.DATATYPE_INT32, ModbusProtocol.CONVMOD_0123_0123,
+                        ModbusProtocol.DATATYPE_JAVA_INT32);
 
-        int nError;
-        nError = req.sendReadInputRegister(Integer.parseInt(deviceId), nAddressFrom, nDataNum);
-        if (nError == ModbusProtocol.ERROR_NONE) {
-            System.out.println("sendReadInputRegister-参数设置有效");
-        } else {
-            System.out.println(ModbusProtocol.getErrorMessage(nError));
-        }
+                nError = req.sendReadInputRegister(Integer.parseInt(deviceId), nAddressFrom, nDataNum);
+                if (nError == ModbusProtocol.ERROR_NONE) {
+//                    System.out.println("sendReadInputRegister-参数设置有效");
+                } else {
+                    System.out.println(ModbusProtocol.getErrorMessage(nError));
+                }
 
-        //2.发送指令
-        nError = manager.write(nServerListPos, req);
-        if (nError == ModbusProtocol.ERROR_NONE) {
-            System.out.println("sendReadInputRegister-发送有效");
-        } else {
-            System.out.println(ModbusProtocol.getErrorMessage(nError));
-        }
+                //2.发送指令
+                nError = manager.write(nServerListPos, req);
+                if (nError == ModbusProtocol.ERROR_NONE) {
+//                    System.out.println("sendReadInputRegister-发送有效");
+                } else {
+                    System.out.println(ModbusProtocol.getErrorMessage(nError));
+                }
 
-        //3.接收数据
-        nError = manager.read(nServerListPos, ans);
-        if (nError == ModbusProtocol.ERROR_NONE) {
-            System.out.println("sendReadInputRegister-接收有效");
-        }
+                //3.接收数据
+                nError = manager.read(nServerListPos, ans);
+                if (nError == ModbusProtocol.ERROR_NONE) {
+//                    System.out.println("sendReadInputRegister-接收有效");
+                }
 
-        //4.接收数据成功，则通过该方法读取相应数据
-        if (nError == ModbusProtocol.ERROR_NONE) {
-            //注：i的值为第几个数据,因此起点为0,而不是字节数的起点也与nAddressFrom不同
-            int nDataFrom = 0;
-            for (int i = nDataFrom; i < nDataNum; i++) {
-                //选择的数据类型，与setConvertMode方法中设置的Java端数据类型有关
-                //int data = ans.getIntByIndex(i);
-                float data = ans.getFloatByIndex(i - nAddressFrom);
-                responseDate.add(data);
+                //4.接收数据成功，则通过该方法读取相应数据
+                if (nError == ModbusProtocol.ERROR_NONE) {
+                    //注：i的值为第几个数据,因此起点为0,而不是字节数的起点也与nAddressFrom不同
+                    int nDataFrom = 0;
+                    for (int i = nDataFrom; i < nDataNum; i++) {
+                        //选择的数据类型，与setConvertMode方法中设置的Java端数据类型有关
+                        //int data = ans.getIntByIndex(i);
+                        float data = ans.getFloatByIndex(i);
+                        responseDate.add(data);
+                    }
+                }
             }
+        } catch (Exception e) {
+            System.out.println("Task.readTaskList3，读取时异常!!!" + e);
         }
         return responseDate;
     }
 
+    /**
+     * 加载Plc读取客户端公用参数
+     */
+
+    private void loadConfigSwtich() {
+        if (StringUtils.isBlank(configSwtich)) {
+            nServerDataType = ModbusProtocol.DATATYPE_INT32;
+            nConvMode = ModbusProtocol.CONVMOD_0123_0123;
+            nJavaDataType = ModbusProtocol.DATATYPE_JAVA_INT32;
+            //0.1 发送设置
+            req.setServerDataType(nServerDataType);
+            //设置为需要检查所有反馈信息
+            req.setCheckAnswer(ModbusProtocol.CHKASK_ALL);
+            setConfigSwtich("1");
+        }
+    }
 
     /**
      * 读取静态ip数据
@@ -210,5 +239,13 @@ public class TaskDevice {
 
     public void setRexs(ReadExcelService rexs) {
         this.rexs = rexs;
+    }
+
+    public static String getConfigSwtich() {
+        return configSwtich;
+    }
+
+    public static void setConfigSwtich(String configSwtich) {
+        TaskDevice.configSwtich = configSwtich;
     }
 }

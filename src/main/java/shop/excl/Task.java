@@ -54,27 +54,28 @@ public class Task {
             System.out.println("--Task,4,首次加载,完成");
         }
 
-        if (!CollectionUtils.isEmpty(taskList4)) {
-            for (AddrSpotModel addrSpotModel : taskList4) {
-                if (addrSpotModel == null) {
-                    System.out.println("PLC 读取数据时，解析taskList4，对象存在空值!");
-                    continue;
-                }
-                if (addrSpotModel.getnFrom() == 0 || addrSpotModel.getAddNum() == 0) {
-                    System.out.println("PLC 读取数据时，解析taskList4，起始位，或步长为空！ object :" + JSONObject.toJSONString(addrSpotModel));
-                    continue;
-                }
-                int nfrom = addrSpotModel.getnFrom();
-                int nNum = addrSpotModel.getAddNum();
-                List<Float> rs = taskDevices.readDevicesTask4(nfrom, nNum);
-//                System.out.println("rs" + rs);
-                if (CollectionUtils.isEmpty(rs) || rs.size() != addrSpotModel.getAddNum()) {
-                    System.out.println("Task.readTaskList4 单组读取为空！,分组号:" + addrSpotModel.getGroupCode() + "起始位：" + nfrom);
-                }
-                addrSpotModel.setPlcValue(rs);
-
-                buildCellModel(addrSpotModel, model4);
+        if (CollectionUtils.isEmpty(taskList4)) {
+            System.out.println("Task.taskList4，任务内存为空！！！");
+        }
+        for (AddrSpotModel addrSpotModel : taskList4) {
+            if (addrSpotModel == null) {
+                System.out.println("PLC 读取数据时，解析taskList4，对象存在空值!");
+                continue;
             }
+            if (addrSpotModel.getnFrom() == 0 || addrSpotModel.getAddNum() == 0) {
+                System.out.println("PLC 读取数据时，解析taskList4，起始位，或步长为空！ object :" + JSONObject.toJSONString(addrSpotModel));
+                continue;
+            }
+            int nfrom = addrSpotModel.getnFrom();
+            int nNum = addrSpotModel.getAddNum();
+            List<Float> rs = taskDevices.readDevicesTask4(nfrom, nNum);
+//                System.out.println("rs" + rs);
+            if (CollectionUtils.isEmpty(rs) || rs.size() != addrSpotModel.getAddNum()) {
+                System.out.println("Task.readTaskList4 单组读取为空！,分组号:" + addrSpotModel.getGroupCode() + "起始位：" + nfrom);
+            }
+            addrSpotModel.setPlcValue(rs);
+
+            buildCellModel(addrSpotModel, model4);
         }
 
     }
@@ -85,10 +86,13 @@ public class Task {
      */
     public void readTaskList3() {
         if (taskList3 == null) {
-            taskList3 = readExcelService.getTaskList4();
+            taskList3 = readExcelService.getTaskList3();
             System.out.println("--Task,3,首次加载,完成");
         }
-
+//        test();
+        if (CollectionUtils.isEmpty(taskList3)) {
+            System.out.println("Task.taskList3，任务内存为空！！！");
+        }
         if (!CollectionUtils.isEmpty(taskList3)) {
             for (AddrSpotModel addrSpotModel : taskList3) {
                 if (addrSpotModel == null) {
@@ -104,7 +108,7 @@ public class Task {
                 List<Float> rs = taskDevices.readDevicesTask3(nfrom, nNum);
 //                System.out.println("rs" + rs);
                 if (CollectionUtils.isEmpty(rs) || rs.size() != addrSpotModel.getAddNum()) {
-                    System.out.println("Task.readTaskList4 单组读取为空！,分组号:" + addrSpotModel.getGroupCode() + "起始位：" + nfrom);
+                    System.out.println("Task.readTaskList3 单组读取为空！,分组号:" + addrSpotModel.getGroupCode() + "起始位：" + nfrom);
                 }
                 addrSpotModel.setPlcValue(rs);
 
@@ -212,8 +216,8 @@ public class Task {
         taskListTest.add(addrSpotModel);
         taskListTest.add(addrSpotModel2);
 
-        taskList4.clear();
-        taskList4 = taskListTest;
+        taskList3.clear();
+        taskList3 = taskListTest;
 
     }
 }

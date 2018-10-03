@@ -114,11 +114,11 @@ public class ReadExcelService {
     private void handldModel() {
         try {
             taskList1 = splitByGroupCode(listModel_1);
-            System.out.println("--TaskList1，加载完毕！");
+            System.out.println("--TaskList1，加载完毕！，长度为：" + taskList1.size());
             taskList4 = splitByGroupCode(listModel_4);
-            System.out.println("--TaskList4，加载完毕！");
+            System.out.println("--TaskList4，加载完毕！，长度为：" + taskList4.size());
             taskList3 = splitByGroupCode(listModel_3);
-            System.out.println("--TaskList３，加载完毕！");
+            System.out.println("--TaskList３，加载完毕！，长度为：" + taskList3.size());
 //            System.out.println("-" + JSONObject.toJSONString(taskList4));
             this.setInitFlag(1);
         } catch (Exception e) {
