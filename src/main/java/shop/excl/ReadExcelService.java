@@ -362,7 +362,6 @@ public class ReadExcelService {
             setIp(globalConfig.get("ip").toString());
             setPort(globalConfig.get("port").toString());
             setDeviceId(globalConfig.get("deviceId").toString());
-            System.out.println("ip: " + getIp() + ", port: " + getPort() + ",deviceId: " + getDeviceId());
         }
 
     }

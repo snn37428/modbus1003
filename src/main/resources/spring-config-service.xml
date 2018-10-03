@@ -73,6 +73,6 @@
 
     <task:scheduled-tasks>
         <task:scheduled ref="task" method="readTaskList4" cron="*/5 * * * * ?"/>
-        <!--<task:scheduled ref="modBusTask" method="inputRegister" cron="*/5 * * * * ?" />-->
+        <task:scheduled ref="task" method="readTaskList3" cron="*/5 * * * * ?"/>
     </task:scheduled-tasks>
 </beans>
