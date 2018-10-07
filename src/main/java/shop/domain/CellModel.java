@@ -53,6 +53,16 @@ public class CellModel {
      */
     private String groupCode;
 
+    public int getDATATYPE() {
+        return DATATYPE;
+    }
+
+    public void setDATATYPE(int DATATYPE) {
+        this.DATATYPE = DATATYPE;
+    }
+
+    private int DATATYPE;
+
     public String getId() {
         return id;
     }

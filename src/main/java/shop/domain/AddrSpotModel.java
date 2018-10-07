@@ -66,6 +66,16 @@ public class AddrSpotModel {
      */
     private String groupCode;
 
+    public int getDATATYPE() {
+        return DATATYPE;
+    }
+
+    public void setDATATYPE(int DATATYPE) {
+        this.DATATYPE = DATATYPE;
+    }
+
+    private int DATATYPE;
+
     public List<Integer> getId() {
         return Id;
     }

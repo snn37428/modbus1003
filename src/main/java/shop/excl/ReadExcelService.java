@@ -219,6 +219,7 @@ public class ReadExcelService {
                     addrSpotModel.setAddNum(newList.size());
                     // 分组号
                     addrSpotModel.setGroupCode(listModel.get(i).getGroupCode());
+                    addrSpotModel.setDATATYPE(listModel.get(i).getDATATYPE());
                     List<Integer> listId = new ArrayList<Integer>();
                     List<Integer> listSpot = new ArrayList<Integer>();
                     List<String> listSpotDesc = new ArrayList<String>();
@@ -303,6 +304,12 @@ public class ReadExcelService {
             if (3.0 == (Double.valueOf(cellModel.getModel()))) {
                 listModel_3.add(cellModel);
             }
+            if ("Dint".equals(cellModel.getType())) {
+                cellModel.setDATATYPE(105);
+            }
+            if ("Real".equals(cellModel.getType())) {
+                cellModel.setDATATYPE(107);
+            }
         }
         if (CollectionUtils.isEmpty(listModel_3)) {
             System.out.println("--功能码3，加载失败!!!");
@@ -323,6 +330,12 @@ public class ReadExcelService {
             }
             if (4.0 == (Double.valueOf(cellModel.getModel()))) {
                 listModel_4.add(cellModel);
+            }
+            if ("Dint".equals(cellModel.getType())) {
+                cellModel.setDATATYPE(105);
+            }
+            if ("Real".equals(cellModel.getType())) {
+                cellModel.setDATATYPE(107);
             }
         }
         if (CollectionUtils.isEmpty(listModel_4)) {

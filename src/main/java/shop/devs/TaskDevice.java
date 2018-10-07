@@ -52,13 +52,13 @@ public class TaskDevice {
 
 
     /**
-     * 读取model4数据方法
+     * 读取model3数据方法
      *
      * @param nFrom
      * @param nNum
      * @return
      */
-    public List<String> readDevicesTask4(int nFrom, int nNum) {
+    public List<String> readDevicesTask3(int nFrom, int nNum, int dataType) {
         loadIp();
         // 结果返回体
         List<String> responseDate = new ArrayList<String>();
@@ -75,7 +75,7 @@ public class TaskDevice {
                 ans.setConvertMode(nServerDataType, nConvMode, nJavaDataType);
 
                 int nError;
-                ans.setConvertMode(ModbusProtocol.DATATYPE_INT32, ModbusProtocol.CONVMOD_0123_3210,
+                ans.setConvertMode(dataType, ModbusProtocol.CONVMOD_0123_3210,
                         ModbusProtocol.DATATYPE_JAVA_FLOAT32);
                 //1.设置发送指令参数
                 nError = req.sendReadHoldingRegister(Integer.parseInt(deviceId), nFrom, nNum);
@@ -115,13 +115,13 @@ public class TaskDevice {
     }
 
     /**
-     * 读取model3数据方法
+     * 读取model4数据方法
      *
      * @param nAddressFrom
      * @param nDataNum
      * @return
      */
-    public List<String> readDevicesTask3(int nAddressFrom, int nDataNum) {
+    public List<String> readDevicesTask4(int nAddressFrom, int nDataNum, int dataType) {
         loadIp();
         // 结果返回体
         List<String> responseDate = new ArrayList<String>();
@@ -138,7 +138,7 @@ public class TaskDevice {
                 ans.setConvertMode(nServerDataType, nConvMode, nJavaDataType);
 
                 int nError;
-                ans.setConvertMode(ModbusProtocol.DATATYPE_INT32, ModbusProtocol.CONVMOD_0123_0123,
+                ans.setConvertMode(dataType, ModbusProtocol.CONVMOD_0123_3210,
                         ModbusProtocol.DATATYPE_JAVA_INT32);
 
                 nError = req.sendReadInputRegister(Integer.parseInt(deviceId), nAddressFrom, nDataNum);
@@ -168,9 +168,14 @@ public class TaskDevice {
                     int nDataFrom = 0;
                     for (int i = nDataFrom; i < nDataNum; i++) {
                         //选择的数据类型，与setConvertMode方法中设置的Java端数据类型有关
-                        //int data = ans.getIntByIndex(i);
-                        float data = ans.getFloatByIndex(i);
-                        responseDate.add(String.valueOf(data));
+
+                        if (dataType == 105) {
+                            int data = ans.getIntByIndex(i);
+                            responseDate.add(String.valueOf(data));
+                        } else if (dataType == 107) {
+                            float data = ans.getFloatByIndex(i);
+                            responseDate.add(String.valueOf(data));
+                        }
                     }
                 }
             }
@@ -247,7 +252,7 @@ public class TaskDevice {
     private void loadConfigSwtich() {
         if (StringUtils.isBlank(configSwtich)) {
             nServerDataType = ModbusProtocol.DATATYPE_INT32;
-            nConvMode = ModbusProtocol.CONVMOD_0123_0123;
+            nConvMode = ModbusProtocol.CONVMOD_0123_3210;
             nJavaDataType = ModbusProtocol.DATATYPE_JAVA_INT32;
             //0.1 发送设置
             req.setServerDataType(nServerDataType);

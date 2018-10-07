@@ -294,7 +294,7 @@ public class DevicesManagement {
         /*
          * STEP1: 添加新的PLC设备
          */
-        int nServerListPos = manager.add("192.168.1.111", Modbus.DEFAULT_PORT);
+        int nServerListPos = manager.add("192.168.1.1", Modbus.DEFAULT_PORT);
 
         //int nget = Float.floatToIntBits((float) 1.00);
         //System.out.println("1.00: " + Integer.toHexString(nget));
@@ -338,41 +338,41 @@ public class DevicesManagement {
                 ans.setConvertMode(nServerDataType, nConvMode, nJavaDataType);
 
 
-	    		//----------功能码01--------------------
-	    		// -- tested --
-	    		//1.设置发送指令参数
-	    		int nCoilStart = 0;
-	    		int nCoilNum = 8;
-	    		nError = req.sendReadCoil(nDeviceId, nCoilStart, nCoilNum);
-    			if (nError == ModbusProtocol.ERROR_NONE ){
-	    			System.out.println("sendReadCoil-参数设置有效");
-    			}else{
-	    			System.out.println(ModbusProtocol.getErrorMessage(nError));
-    			}
-
-    			//2.发送指令
-    			nError = manager.write(nServerListPos, req);
-    			if (nError == ModbusProtocol.ERROR_NONE ){
-	    			System.out.println("sendReadCoil-发送成功");
-    			}else{
-	    			System.out.println(ModbusProtocol.getErrorMessage(nError));
-    			}
-
-    			//3.接收数据
-    			nError =manager.read(nServerListPos, ans);
-    			if (nError == ModbusProtocol.ERROR_NONE ){
-	    			System.out.println("sendReadCoil-接收成功");
-    			}else{
-	    			System.out.println(ModbusProtocol.getErrorMessage(nError));
-    			}
-
-    			//4.接收数据后，通过该方法读取相应数据
-    			if (nError == ModbusProtocol.ERROR_NONE ){
-	    			for(int i = nCoilStart; i< nCoilStart + nCoilNum; i++){
-	    				int nCoilStatus = ans.getBitByIndex(i);
-	    				System.out.println(i+":"+nCoilStatus);
-	    			}
-    			}
+//	    		//----------功能码01--------------------
+//	    		// -- tested --
+//	    		//1.设置发送指令参数
+//	    		int nCoilStart = 0;
+//	    		int nCoilNum = 8;
+//	    		nError = req.sendReadCoil(nDeviceId, nCoilStart, nCoilNum);
+//    			if (nError == ModbusProtocol.ERROR_NONE ){
+//	    			System.out.println("sendReadCoil-参数设置有效");
+//    			}else{
+//	    			System.out.println(ModbusProtocol.getErrorMessage(nError));
+//    			}
+//
+//    			//2.发送指令
+//    			nError = manager.write(nServerListPos, req);
+//    			if (nError == ModbusProtocol.ERROR_NONE ){
+//	    			System.out.println("sendReadCoil-发送成功");
+//    			}else{
+//	    			System.out.println(ModbusProtocol.getErrorMessage(nError));
+//    			}
+//
+//    			//3.接收数据
+//    			nError =manager.read(nServerListPos, ans);
+//    			if (nError == ModbusProtocol.ERROR_NONE ){
+//	    			System.out.println("sendReadCoil-接收成功");
+//    			}else{
+//	    			System.out.println(ModbusProtocol.getErrorMessage(nError));
+//    			}
+//
+//    			//4.接收数据后，通过该方法读取相应数据
+//    			if (nError == ModbusProtocol.ERROR_NONE ){
+//	    			for(int i = nCoilStart; i< nCoilStart + nCoilNum; i++){
+//	    				int nCoilStatus = ans.getBitByIndex(i);
+//	    				System.out.println(i+":"+nCoilStatus);
+//	    			}
+//    			}
 
 
     			/*
@@ -416,12 +416,12 @@ public class DevicesManagement {
 //                //----------功能码03--------------------
 //                // -- tested --
 //                //0.设置系统参数
-//                ans.setConvertMode(ModbusProtocol.DATATYPE_INT32, ModbusProtocol.CONVMOD_0123_3210,
+//                ans.setConvertMode(ModbusProtocol.DATATYPE_REAL32, ModbusProtocol.CONVMOD_0123_3210,
 //                        ModbusProtocol.DATATYPE_JAVA_FLOAT32);
 //
 //                //1.设置发送指令参数
-//                int nFrom = 0;
-//                int nNum = 14;
+//                int nFrom = 4000;
+//                int nNum = 20;
 //                nError = req.sendReadHoldingRegister(nDeviceId, nFrom, nNum);
 //                if (nError == ModbusProtocol.ERROR_NONE ){
 //                    System.out.println("sendReadHoldingRegister-参数设置有效");
@@ -456,49 +456,49 @@ public class DevicesManagement {
 //                }
 //
 
-//
-//                //----------功能码04--------------------
-//               //  -- tested --
-//                //1.设置发送指令参数
-//    			int nAddressFrom = 2;
-//    			int nDataNum = 3;
-//	    		ans.setConvertMode(ModbusProtocol.DATATYPE_INT32, ModbusProtocol.CONVMOD_0123_0123,
-//	    				ModbusProtocol.DATATYPE_JAVA_INT32);
-//
-//	    		nError = req.sendReadInputRegister(nDeviceId, nAddressFrom, nDataNum);
-//    			if (nError == ModbusProtocol.ERROR_NONE ){
-//	    			System.out.println("sendReadInputRegister-参数设置有效");
-//    			}else{
-//	    			System.out.println(ModbusProtocol.getErrorMessage(nError));
-//    			}
-//
-//    			//2.发送指令
-//    			nError = manager.write(nServerListPos, req);
-//    			if (nError == ModbusProtocol.ERROR_NONE ){
-//	    			System.out.println("sendReadInputRegister-发送有效");
-//    			}else{
-//	    			System.out.println(ModbusProtocol.getErrorMessage(nError));
-//    			}
-//
-//    			//3.接收数据
-//    			nError = manager.read(nServerListPos, ans);
-//     			if (nError == ModbusProtocol.ERROR_NONE ){
-//	    			System.out.println("sendReadInputRegister-接收有效");
-//    			}
-//
-//    			//4.接收数据成功，则通过该方法读取相应数据
-//    			if (nError == ModbusProtocol.ERROR_NONE){
-//    				//注：i的值为第几个数据,因此起点为0,而不是字节数的起点也与nAddressFrom不同
-//	    			int nDataFrom = 0;
-//    				for(int i = nDataFrom; i< nDataNum; i++){
-//	    				//选择的数据类型，与setConvertMode方法中设置的Java端数据类型有关
-//	    				//int data = ans.getIntByIndex(i);
-//	    				float data = ans.getFloatByIndex(i);
-//	    				System.out.println(i+":" + data);
-//	    			}
-//    			}
 
+                //----------功能码04--------------------
+               //  -- tested --
+                //1.设置发送指令参数
+    			int nAddressFrom = 2070 ;
+    			int nDataNum = 30;
+	    		ans.setConvertMode(ModbusProtocol.DATATYPE_INT32, ModbusProtocol.CONVMOD_0123_3210,
+	    				ModbusProtocol.DATATYPE_JAVA_INT32);
 
+	    		nError = req.sendReadInputRegister(nDeviceId, nAddressFrom, nDataNum);
+    			if (nError == ModbusProtocol.ERROR_NONE ){
+	    			System.out.println("sendReadInputRegister-参数设置有效");
+    			}else{
+	    			System.out.println(ModbusProtocol.getErrorMessage(nError));
+    			}
+
+    			//2.发送指令
+    			nError = manager.write(nServerListPos, req);
+    			if (nError == ModbusProtocol.ERROR_NONE ){
+	    			System.out.println("sendReadInputRegister-发送有效");
+    			}else{
+	    			System.out.println(ModbusProtocol.getErrorMessage(nError));
+    			}
+
+    			//3.接收数据
+    			nError = manager.read(nServerListPos, ans);
+     			if (nError == ModbusProtocol.ERROR_NONE ){
+	    			System.out.println("sendReadInputRegister-接收有效");
+    			}
+                System.out.println("s------------------" + nError);
+
+    			//4.接收数据成功，则通过该方法读取相应数据
+    			if (nError == ModbusProtocol.ERROR_NONE){
+    				//注：i的值为第几个数据,因此起点为0,而不是字节数的起点也与nAddressFrom不同
+	    			int nDataFrom = 0;
+    				for(int i = nDataFrom; i< nDataNum; i++){
+	    				//选择的数据类型，与setConvertMode方法中设置的Java端数据类型有关
+	    				int data = ans.getIntByIndex(i);
+//    				float data = ans.getFloatByIndex(i);
+	    				System.out.println(i+":----" + data);
+//                        System.out.println(i+":**float***" + data2);
+	    			}
+    			}
 
 				/*
 	    		//----------功能码05--------------------

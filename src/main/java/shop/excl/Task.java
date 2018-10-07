@@ -67,6 +67,7 @@ public class Task {
         if (CollectionUtils.isEmpty(taskList4)) {
             System.out.println("Task.taskList4，任务内存为空！！！");
         }
+        System.out.println("_______________" + JSONObject.toJSONString(taskList4));
         for (AddrSpotModel addrSpotModel : taskList4) {
             if (addrSpotModel == null) {
                 System.out.println("PLC 读取数据时，解析taskList4，对象存在空值!");
@@ -78,7 +79,7 @@ public class Task {
             }
             int nfrom = addrSpotModel.getnFrom();
             int nNum = addrSpotModel.getAddNum();
-            List<String> rs = taskDevices.readDevicesTask4(nfrom, nNum);
+            List<String> rs = taskDevices.readDevicesTask4(nfrom, nNum, addrSpotModel.getDATATYPE());
 //                System.out.println("rs" + rs);
             if (CollectionUtils.isEmpty(rs) || rs.size() != addrSpotModel.getAddNum()) {
                 System.out.println("Task.readTaskList4 单组读取为空！,分组号:" + addrSpotModel.getGroupCode() + "起始位：" + nfrom);
@@ -114,7 +115,7 @@ public class Task {
                 }
                 int nfrom = addrSpotModel.getnFrom();
                 int nNum = addrSpotModel.getAddNum();
-                List<String> rs = taskDevices.readDevicesTask3(nfrom, nNum);
+                List<String> rs = taskDevices.readDevicesTask3(nfrom, nNum, addrSpotModel.getDATATYPE());
                 //System.out.println("rs" + rs);
                 if (CollectionUtils.isEmpty(rs) || rs.size() != addrSpotModel.getAddNum()) {
                     System.out.println("Task.readTaskList3 单组读取为空！,分组号:" + addrSpotModel.getGroupCode() + "起始位：" + nfrom);
