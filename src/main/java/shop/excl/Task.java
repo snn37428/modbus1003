@@ -7,6 +7,7 @@ import shop.dao.TaskMapper;
 import shop.devs.TaskDevice;
 import shop.domain.AddrSpotModel;
 import shop.domain.CellModel;
+import shop.yun.dao.TaskYunMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,9 @@ public class Task {
 
     @Autowired
     private TaskMapper taskMapper;
+
+    @Autowired
+    private TaskYunMapper taskYunMapper;
 
     /**
      * 功能码4
@@ -202,68 +206,84 @@ public class Task {
         } catch (Exception e) {
             System.out.println("插入数据，异常：" + e);
         }
+        try {
+            taskYunMapper.insertList(listCellModel);
+            System.out.println("功能码，" + model + "，写入_云_数据成功！！！");
+        } catch (Exception e) {
+            System.out.println("插入云端数据，异常：" + e);
+        }
     }
-
 
     /**
      * 测试
      */
-    private void test() {
+    public void test() {
 
-        List<Integer> listPot = new ArrayList<Integer>();
-        listPot.add(0);
-        listPot.add(4);
-        listPot.add(6);
+//        List<Integer> listPot = new ArrayList<Integer>();
+//        listPot.add(0);
+//        listPot.add(4);
+//        listPot.add(6);
+//
+//        List<String> listPotName = new ArrayList<String>();
+//        listPotName.add("iWTm0202");
+//        listPotName.add("iWTm0203");
+//        listPotName.add("iWTm0204");
+//
+//        List<String> listPotDesc = new ArrayList<String>();
+//        listPotDesc.add("浇水时间0202");
+//        listPotDesc.add("浇水时间0203");
+//        listPotDesc.add("浇水时间0203");
+//
+//
+//        AddrSpotModel addrSpotModel = new AddrSpotModel();
+//        addrSpotModel.setListSpot(listPot);
+//        addrSpotModel.setnFrom(2);
+//        addrSpotModel.setAddNum(3);
+//        addrSpotModel.setSpotDescCN(listPotDesc);
+//        addrSpotModel.setSpotDesc(listPotName);
+//
+//
+//        List<String> listPotName2 = new ArrayList<String>();
+//        listPotName2.add("iWTm0202");
+//        listPotName2.add("iWTm0203");
+//        listPotName2.add("iWTm0204");
+//
+//        List<String> listPotDesc2 = new ArrayList<String>();
+//        listPotDesc2.add("浇水时间0202");
+//        listPotDesc2.add("浇水时间0203");
+//        listPotDesc2.add("浇水时间0203");
+//
+//
+//        List<Integer> listPot2 = new ArrayList<Integer>();
+//        listPot2.add(8);
+//        listPot2.add(10);
+//        listPot2.add(12);
+//
+//        AddrSpotModel addrSpotModel2 = new AddrSpotModel();
+//        addrSpotModel2.setListSpot(listPot2);
+//        addrSpotModel2.setnFrom(8);
+//        addrSpotModel2.setAddNum(3);
+//        addrSpotModel2.setSpotDescCN(listPotDesc2);
+//        addrSpotModel2.setSpotDesc(listPotName2);
+//
+//        List<AddrSpotModel> taskListTest = new ArrayList<AddrSpotModel>();
+//
+//        taskListTest.add(addrSpotModel);
+//        taskListTest.add(addrSpotModel2);
+//
+//        taskList1.clear();
+//        taskList1 = taskListTest;
+        List<CellModel> listCellModel = new ArrayList<CellModel>();
+        CellModel cellModel = new CellModel();
+        cellModel.setDesc("测试");
+        cellModel.setValue("1");
 
-        List<String> listPotName = new ArrayList<String>();
-        listPotName.add("iWTm0202");
-        listPotName.add("iWTm0203");
-        listPotName.add("iWTm0204");
-
-        List<String> listPotDesc = new ArrayList<String>();
-        listPotDesc.add("浇水时间0202");
-        listPotDesc.add("浇水时间0203");
-        listPotDesc.add("浇水时间0203");
-
-
-        AddrSpotModel addrSpotModel = new AddrSpotModel();
-        addrSpotModel.setListSpot(listPot);
-        addrSpotModel.setnFrom(2);
-        addrSpotModel.setAddNum(3);
-        addrSpotModel.setSpotDescCN(listPotDesc);
-        addrSpotModel.setSpotDesc(listPotName);
-
-
-        List<String> listPotName2 = new ArrayList<String>();
-        listPotName2.add("iWTm0202");
-        listPotName2.add("iWTm0203");
-        listPotName2.add("iWTm0204");
-
-        List<String> listPotDesc2 = new ArrayList<String>();
-        listPotDesc2.add("浇水时间0202");
-        listPotDesc2.add("浇水时间0203");
-        listPotDesc2.add("浇水时间0203");
-
-
-        List<Integer> listPot2 = new ArrayList<Integer>();
-        listPot2.add(8);
-        listPot2.add(10);
-        listPot2.add(12);
-
-        AddrSpotModel addrSpotModel2 = new AddrSpotModel();
-        addrSpotModel2.setListSpot(listPot2);
-        addrSpotModel2.setnFrom(8);
-        addrSpotModel2.setAddNum(3);
-        addrSpotModel2.setSpotDescCN(listPotDesc2);
-        addrSpotModel2.setSpotDesc(listPotName2);
-
-        List<AddrSpotModel> taskListTest = new ArrayList<AddrSpotModel>();
-
-        taskListTest.add(addrSpotModel);
-        taskListTest.add(addrSpotModel2);
-
-        taskList1.clear();
-        taskList1 = taskListTest;
-
+        listCellModel.add(cellModel);
+        try {
+            taskYunMapper.insertList(listCellModel);
+            System.out.println("功能码:写入_云_数据成功！！！");
+        } catch (Exception e) {
+            System.out.println("插入云端数据，异常：" + e);
+        }
     }
 }

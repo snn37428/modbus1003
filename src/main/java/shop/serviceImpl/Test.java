@@ -20,8 +20,8 @@ import java.util.List;
  * @modified: by
  */
 public class Test {
-    @Autowired
-    private SpotMapper orderPOMapper;
+//    @Autowired
+//    private SpotMapper orderPOMapper;
     private String ip = "192.168.1.111";
     private int port = 502;
 //单个信息写入
@@ -30,7 +30,7 @@ public class Test {
         se.setPlcId(25);
         se.setSpotName("gagse");
         se.setTableIndex("int_0");
-        orderPOMapper.insert(se);
+//        orderPOMapper.insert(se);
         System.out.println("8");
     }
 //多个信息入库
@@ -47,7 +47,7 @@ public class Test {
             s2.setSpotName("gaerww");
             s2.setTableIndex("int_0");
             l.add(s2);
-            orderPOMapper.insertSpotInt(l);
+//            orderPOMapper.insertSpotInt(l);
             System.out.println("test===========");
         } catch (Exception e) {
             e.printStackTrace();
@@ -197,7 +197,7 @@ public class Test {
         }
 
         try {
-            orderPOMapper.insertSpotBool(ListB);
+//            orderPOMapper.insertSpotBool(ListB);
         } catch (Exception e) {
             e.printStackTrace();
         }
