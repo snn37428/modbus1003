@@ -9,4 +9,8 @@ public interface TaskMapper {
     int insert(CellModel cellModel);
 
     int insertList(List<CellModel> cellModelListl);
+
+    List<CellModel> listCellModel();
+
+    List<CellModel>  selectById(CellModel cellModel);
 }

@@ -1,5 +1,7 @@
 package shop.domain;
 
+import java.util.Date;
+
 /**
  * create snn by 2018/09/16
  */
@@ -52,6 +54,33 @@ public class CellModel {
      * @return
      */
     private String groupCode;
+
+    /**
+     * 本地库主键
+     */
+    private int priId;
+
+    /**
+     * 写库时间
+     */
+    private Date created;
+
+
+    public int getPriId() {
+        return priId;
+    }
+
+    public void setPriId(int priId) {
+        this.priId = priId;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 
     public int getDATATYPE() {
         return DATATYPE;

@@ -26,6 +26,11 @@ public class ReadExcelService {
     private String port;
     private String deviceId;
 
+    /**
+     * 同步云库的配置加载
+     */
+    private static String[] sysCellList;
+
     private static List<CellModel> listCellModel = new ArrayList<CellModel>();
 
     /**
@@ -375,8 +380,8 @@ public class ReadExcelService {
             setIp(globalConfig.get("ip").toString());
             setPort(globalConfig.get("port").toString());
             setDeviceId(globalConfig.get("deviceId").toString());
+            setSysCellList(globalConfig.get("sysCell").toString().split("\\,"));
         }
-
     }
 
     public List<AddrSpotModel> getTaskList1() {
@@ -441,6 +446,14 @@ public class ReadExcelService {
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public  String[] getSysCellList() {
+        return sysCellList;
+    }
+
+    public  void setSysCellList(String[] sysCellList) {
+        ReadExcelService.sysCellList = sysCellList;
     }
 }
 
