@@ -80,6 +80,12 @@
         <!--<task:scheduled ref="task" method="readTaskList3" cron="*/5 * * * * ?"/>-->
         <!--<task:scheduled ref="task" method="test" cron="*/5 * * * * ?"/>-->
         <!--<task:scheduled ref="work" method="sysTOYun" cron="*/5 * * * * ?"/>-->
-        <task:scheduled ref="work" method="sysWork" cron="*/5 * * * * ?"/>
+
+        <!--从云库同步下来配置，做远程控制更新-->
+        <task:scheduled ref="work" method="sysWorkConfig" cron="*/5 * * * * ?"/>
+        <!--从本地数据库读出来数据后，写入到云库-->
+        <task:scheduled ref="work" method="sysTOYun" cron="*/5 * * * * ?"/>
+        <!--报警主开关更新-->
+        <task:scheduled ref="work" method="sysWork1" cron="*/10 * * * * ?"/>
     </task:scheduled-tasks>
 </beans>

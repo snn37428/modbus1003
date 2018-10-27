@@ -10,15 +10,15 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import shop.dao.TaskMapper;
+import shop.domain.AlarmModel;
 import shop.domain.CellModel;
 import shop.yun.dao.TaskYunMapper;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Work {
 
@@ -37,12 +37,12 @@ public class Work {
      * true：更更新云库
      * false：更新云库
      */
-    private static boolean cronConfigSwtich = true;
+    private static boolean cronReadYUNConfigSwitch = true;
 
     /**
      * 云库报警配置更新
      */
-    private static List<CellModel> yunUpadeListCellModel = new ArrayList<CellModel>();
+    private static List<AlarmModel> yunUpdateListCellModel = new ArrayList<AlarmModel>();
 
     /**
      * 总开关
@@ -62,7 +62,7 @@ public class Work {
     /**
      * 钉钉报警开关
      */
-    private static String dingDingAlarmSwtich = "0";
+    private static String dingDingAlarmSwtich = "1";
 
     /**
      * 钉钉报警信息
@@ -84,33 +84,27 @@ public class Work {
      */
     private static int alarmReadException;
 
+
     /**
      * 写云库数据异常 计数器
      */
-    private static int alarmWriteYunException;
+    private static int sysTOYunError = 0;
 
-    public void dataTOYun() {
-        List<CellModel> rs = null;
-        try {
-            rs = taskMapper.listCellModel();
-        } catch (Exception e) {
-            System.out.println("Work.dataTOYun，读取本地异常！！！" + e);
-        }
-        if (!CollectionUtils.isEmpty(rs)) {
-            System.out.println("Work.dataTOYun，读取本地数据为空！！！");
-        }
-        try {
-            taskYunMapper.insertList(rs);
-            System.out.println("Work.dataTOYun，写入--云数据库成功");
-        } catch (Exception e) {
-            System.out.println("Work.dataTOYun，写入数据库异常！！！" + e);
-        }
-    }
+    /**
+     * 写云异常总次数
+     */
+    private static int sysTOYUNException = 1;
 
+    /**
+     * 本地取数据到云、本地取数据到云、本地取数据到云、本地取数据到云、本地取数据到云、本地取数据到云、本地取数据到云、本地取数据到云、本地取数据到云
+     */
     public void sysTOYun() {
         loadSysCell();
+        // 错误计数器
+        int errorSum = 0;
         try {
-            Thread.sleep(500);
+            // 错开modbus部分写数据库时间、错来五分钟防止锁库
+            Thread.sleep(50);
         } catch (InterruptedException e) {
             System.out.println("Work.sysTOYun，InterruptedException" + e);
         }
@@ -118,43 +112,181 @@ public class Work {
         if (sysCellList.length == 0) {
             System.out.println("Work.sysTOYun，同步至云，初始化配置为空！");
         }
+        // 根据配置点读取本地数据
         try {
+            System.out.println("(((((((((((((原始配置" + JSONObject.toJSONString(sysCellList));
             for (int i = 0; i < sysCellList.length; i++) {
                 CellModel cellModel = new CellModel();
-                cellModel.setModbusAddr(sysCellList[i]);
+                cellModel.setId(sysCellList[i]);
+                Thread.sleep(30);
                 List<CellModel> rs = taskMapper.selectById(cellModel);
                 if (CollectionUtils.isEmpty(rs)) {
-                    System.out.println("Work.sysTOYun, 读取数据失败！！！");
+                    System.out.println("Work.sysTOYun，本地数据库读出来的数据少于，配置点的个数。缺失configId： " + (sysCellList[i]));
+                    continue;
                 }
                 listCellModel.add(rs.get(0));
-                Thread.sleep(50);
-                System.out.println("=======" + JSONObject.toJSONString(rs.get(0)));
+                Thread.sleep(30);
             }
         } catch (Exception e) {
             System.out.println("Work.sysTOYun, 读取数据异常！！！" + e);
-            alarmReadException++;
+            errorSum++;
         }
         if (CollectionUtils.isEmpty(listCellModel)) {
-            alarmReadException++;
+            errorSum++;
         }
+        // 写云库
         try {
             int rs = taskYunMapper.insertList(listCellModel);
-            if (rs > 0) {
-                System.out.println("Work.sysTOYun, 写云数据库成功");
+            if (rs <= 0) {
+                errorSum++;
             }
-            alarmWriteYunException++;
+            System.out.println("Work.sysTOYun, 写云数据库成功");
         } catch (Exception e) {
             System.out.println("Work.sysTOYun, 写云数据库异常" + e);
-            alarmWriteYunException++;
+            errorSum++;
         }
-        if (alarmReadException > 10 && "1".equals(mainWitch) && "1".equals(readWitch)) {
-            System.out.println("Work.sysTOYun, 读取本地数据库异常报警");
-        }
-        if (alarmWriteYunException > 10 && "1".equals(mainWitch) && "1".equals(writeYunSwitch)) {
-            System.out.println("Work.sysTOYun, 写云数据库异常");
+        // 钉钉报警
+        if ("1".equals(mainWitch) && errorSum > 0) {
+            String msg = "【甜圆有机】【现场报警】：同步数据到云失败,异常总次数：" + sysTOYUNException + " 次" + (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(new Date());
+            System.out.println(msg);
+            sysTOYUNException++;
+            sysTOYunError++;
+            sendQuantiyAlarmInfo(msg, getListMobies());
         }
     }
 
+    /**
+     * 同步远程配置数据主进程、同步远程配置数据主进程、同步远程配置数据主进程、同步远程配置数据主进程、同步远程配置数据主进程、同步远程配置数据主进程、同步远程配置数据主进程、同步远程配置数据主进程
+     */
+    private static int yunUpdateListCellSum = 0;
+
+    /**
+     * 告警次数
+     */
+    int sum = 0;
+
+    public void sysWorkConfig() {
+
+        if (!cronReadYUNConfigSwitch) {
+            System.out.println("定时更新云库配置数据,网络重试失败，已经切换到本地配置方案");
+            return;
+        }
+        try {
+            yunUpdateListCellModel = taskYunMapper.selectMainSwitch();
+            if (yunUpdateListCellModel == null) {
+                yunUpdateListCellSum++;
+            }
+            if (yunUpdateListCellModel != null && yunUpdateListCellSum > 3) {
+                yunUpdateListCellSum = 0;
+                sum = 0;
+                String msg = "【甜圆有机】【现场报警】：定时更新云库配置数据，网络异常，恢复正常。";
+                sendQuantiyAlarmInfo(msg, getListMobies());
+                System.out.println(msg);
+            }
+        } catch (Exception e) {
+            System.out.println("Work.sysWork2, 更新云库配置表失败");
+            yunUpdateListCellSum++;
+        }
+        if (yunUpdateListCellSum > 3 && yunUpdateListCellSum <= 6) {
+            sum++;
+            String msg = "【甜圆有机】【现场报警】：定时更新云库配置数据，网络异常，远程读取失败，AlarmWork告警，第" + sum + "次。";
+            System.out.println(msg);
+            sendQuantiyAlarmInfo(msg, getListMobies());
+        }
+        // 大于10次 就不读取数据配置
+        if (yunUpdateListCellSum > 10) {
+            String msg = "【甜圆有机】【现场报警】：定时更新云库配置数据，网络异常，经过重试后无效，配置置为本地初始化状态，已断开与云库通信。";
+            cronReadYUNConfigSwitch = false;
+            sum = 0;
+            System.out.println(msg);
+            sendQuantiyAlarmInfo(msg, getListMobies());
+        }
+//        System.out.println("定时更新云库配置数据,成功");
+    }
+
+    /**
+     * 同步内存中的主开关、同步内存中的主开关、同步内存中的主开关、同步内存中的主开关、同步内存中的主开关、同步内存中的主开关、同步内存中的主开关、同步内存中的主开关
+     */
+    public void sysWork1() {
+        try {
+            if (CollectionUtils.isEmpty(yunUpdateListCellModel)) {
+                System.out.println("更新云配置失败，原因为读取数据库配置为空");
+                return;
+            }
+            if (yunUpdateListCellModel.get(0) == null) {
+                System.out.println("更新云配置失败，原因为读取数据库配置，第一条数据为空");
+                return;
+            }
+            if (StringUtils.isEmpty(yunUpdateListCellModel.get(0).getManSwitch())) {
+                System.out.println("更新云配置失败，原因为读取数据库配置，第一条数据，报警主开关为空");
+                return;
+            }
+            // 钉钉推送主开关状态
+            if (!mainWitch.equals(yunUpdateListCellModel.get(0).getManSwitch())) {
+                String msg = "【甜圆有机】【推送提醒】：主开关推送，状态置为：" + yunUpdateListCellModel.get(0).getManSwitch();
+                sendQuantiyAlarmInfo(msg, getListMobies());
+            }
+            // 更新主开关配置
+            setMainWitch(yunUpdateListCellModel.get(0).getManSwitch());
+            // 主开关  默认为1，打开主开关，0 为关闭
+            System.out.println("更新云库配置表，主开关---------------------" + JSONObject.toJSONString(yunUpdateListCellModel.get(0).getManSwitch()));
+        } catch (Exception e) {
+            System.out.println("更新云库配置表，异常" + e);
+        }
+        sysWork99();
+    }
+
+    /**
+     * 同步内存中的采集点、同步内存中的采集点、同步内存中的采集点、同步内存中的采集点、同步内存中的采集点、同步内存中的采集点、同步内存中的采集点、同步内存中的采集点、同步内存中的采集点
+     */
+    public void sysWork99() {
+
+        try {
+            if (CollectionUtils.isEmpty(yunUpdateListCellModel)) {
+                System.out.println("更新云配置到本地失败，原因为读取数据库配置为空");
+                return;
+            }
+            if (yunUpdateListCellModel.get(0) == null) {
+                System.out.println("更新云配置到本地失败，原因为读取数据库配置，第一条数据为空");
+                return;
+            }
+            if (StringUtils.isEmpty(yunUpdateListCellModel.get(0).getListCells())) {
+                System.out.println("更新云配置到本地失败，原因为读取数据库配置，第一条数据，采集点列表为空");
+                return;
+            }
+            String sptList = yunUpdateListCellModel.get(0).getManSwitch();
+            String[] sysCell = sptList.toString().split("\\,");
+            System.out.println(")))))))))))))))" + JSONObject.toJSONString(sysCell));
+            if (sysCell.length != 0) {
+                sysCellList = sysCell;
+                System.out.println("更新云配置到本地，采集点更新成功");
+            }
+        } catch (Exception e) {
+            System.out.println("更新云配置到本地，更新采集点异常" + e);
+        }
+
+    }
+
+    /**
+     * 同步云库数据失败后，回滚配置。
+     */
+    public void errorGoBack() {
+        // 回滚采集点
+        setSysCellList(readExcelService.getSysCellList());
+        // 回滚主开关
+        setMainWitch("0");
+
+    }
+
+
+    /**
+     * 同步至云，初始化配置
+     */
+    private void loadSysCell() {
+        if (sysCellList.length == 0) {
+            setSysCellList(readExcelService.getSysCellList());
+        }
+    }
 
     /**
      * 发送消息
@@ -167,7 +299,6 @@ public class Work {
         if ("0".equals(mainWitch) || "0".equals(dingDingAlarmSwtich)) {
             return;
         }
-
         try {
             HttpClient httpclient = HttpClients.createDefault();
             HttpPost httppost = new HttpPost(
@@ -193,95 +324,16 @@ public class Work {
                 System.out.println(result);
             }
         } catch (IOException e) {
-            System.out.println(e);
-        }
-    }
-
-
-    public static void main(String[] args) {
-        List<String> se = new ArrayList<String>();
-//        se.add("13810653015");
-        sendQuantiyAlarmInfo(dingDingAlarmMsg, listMobies);
-    }
-
-
-    /**
-     * 远程同步数据work 每小时
-     */
-    private static int yunUpdateListCellSum = 0;
-
-    /**
-     * 告警次数
-     */
-
-    int sum = 0;
-
-    public void sysWork() {
-
-        if (!cronConfigSwtich) {
-            System.out.println("9999999999999");
-            return;
-        }
-
-        try {
-            yunUpadeListCellModel = taskYunMapper.selectMainSwitch();
-            if (yunUpadeListCellModel == null) {
-                yunUpdateListCellSum++;
-            }
-            if (yunUpadeListCellModel != null && yunUpdateListCellSum > 5) {
-                yunUpdateListCellSum = 0;
-            }
-        } catch (Exception e) {
-            System.out.println("Work.sysWork2, 更新云库配置表失败");
-            yunUpdateListCellSum++;
-        }
-        if (yunUpdateListCellSum > 5 && yunUpdateListCellSum < 10) {
-            sum++;
-            String msg = "甜圆有机现场报警：定时更新云库配置数据，网络抖动异常，远程读取失败，AlarmWork.sysWork告警，第" + sum + "次";
-            System.out.println("甜圆有机报警：定时更新云库配置数据，网络抖动异常，远程读取失败，AlarmWork.sysWork告警第" + sum + "次");
-            sendQuantiyAlarmInfo(msg, getListMobies());
-        }
-        if (yunUpdateListCellSum > 15) {
-            String msg = "甜圆有机现场报警：定时更新云库配置数据，网络抖动异常，经过重试后无效，配置置为本地初始化状态，已断开与云库通信";
-            cronConfigSwtich = false;
-            System.out.println("甜圆有机报警：定时更新云库配置数据，网络抖动异常，经过重试后无效，配置置为本地初始化状态，已断开与云库通信");
-            sendQuantiyAlarmInfo(msg, getListMobies());
-        }
-        System.out.println("yunUpdateListCellSum" + yunUpdateListCellSum);
-        System.out.println("3333333333");
-    }
-
-    /**
-     * 远程同步数据work1 每10分组一组
-     */
-    public void sysWork1() {
-
-    }
-
-
-    /**
-     * 远程同步数据work3 每天
-     */
-    public void sysWork3() {
-
-    }
-
-
-    /**
-     * 同步至云，初始化配置
-     */
-    private void loadSysCell() {
-        if (sysCellList.length == 0) {
-            setSysCellList(readExcelService.getSysCellList());
+            System.out.println("钉钉报警HttpClint服务异常");
         }
     }
 
     public static boolean isCronConfig() {
-        return cronConfigSwtich;
+        return cronReadYUNConfigSwitch;
     }
 
     public static void setCronConfig(boolean cronConfig) {
-        Work.cronConfigSwtich = cronConfig;
+        Work.cronReadYUNConfigSwitch = cronConfig;
     }
 
     public static String getMainWitch() {
@@ -340,13 +392,6 @@ public class Work {
         Work.alarmReadException = alarmReadException;
     }
 
-    public static int getAlarmWriteYunException() {
-        return alarmWriteYunException;
-    }
-
-    public static void setAlarmWriteYunException(int alarmWriteYunException) {
-        Work.alarmWriteYunException = alarmWriteYunException;
-    }
 
     public static int getYunUpdateListCellSum() {
         return yunUpdateListCellSum;

@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="shop.yun.dao.TaskYunMapper">
-    <resultMap id="ResultMap" type="shop.domain.CellModel">
-        <id column="id" property="priId"/>
-        <result column="config_id" property="id"/>
-        <result column="p_name" property="name"/>
-        <result column="p_desc" property="desc"/>
-        <result column="p_type" property="type"/>
-        <result column="model" property="model"/>
-        <result column="modbus_addr" property="modbusAddr"/>
-        <result column="p_value" property="Value"/>
-        <result column="cyc" property="cyc"/>
-        <result column="group_code" property="groupCode"/>
-        <result column="created" property="created"/>
+    <resultMap id="ResultMap" type="shop.domain.AlarmModel">
+        <id column="id" property="id"/>
+        <result column="man_switch" property="manSwitch"/>
+        <result column="read_switch" property="readSwitch"/>
+        <result column="write_switch" property="writeSwitch"/>
+        <result column="dingding_switch" property="dingdingSwitch"/>
+        <result column="dingding_alarm" property="dingdingAlarmMsg"/>
+        <result column="list_mobies" property="listMobies"/>
+        <result column="list_cells" property="listCells"/>
     </resultMap>
     <insert id="insert" parameterType="shop.domain.CellModel">
     insert into ty_control_int_0 (id, plc_id, spot_name, spot_desc, modbus_address, value, created)
@@ -32,14 +29,9 @@
     </insert>
 
     <select id="selectMainSwitch" resultMap="ResultMap" parameterType="java.lang.String">
-        select  `id` ,
-  `man_switch` ,
-  `read_switch` ,
-  `write_switch` ,
-  `dingding_switch`,
-  `dingding_alarm` ,
-  `list_mobies`,
-  `list_cells` from alarm order by created asc
+        select`man_switch` ,`read_switch` ,`write_switch` ,`dingding_switch`,`dingding_alarm` ,`list_mobies`,`list_cells`
+        from alarm
+        order by created asc
     </select>
 
 </mapper>

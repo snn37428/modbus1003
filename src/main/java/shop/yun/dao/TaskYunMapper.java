@@ -1,5 +1,6 @@
 package shop.yun.dao;
 
+import shop.domain.AlarmModel;
 import shop.domain.CellModel;
 
 import java.util.List;
@@ -10,5 +11,5 @@ public interface TaskYunMapper {
 
     int insertList(List<CellModel> cellModelListl);
 
-    List<CellModel> selectMainSwitch();
+    List<AlarmModel> selectMainSwitch();
 }
