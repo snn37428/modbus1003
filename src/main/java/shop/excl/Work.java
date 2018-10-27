@@ -165,7 +165,7 @@ public class Work {
     public void sysWorkConfig() {
 
         if (!cronReadYUNConfigSwitch) {
-            System.out.println("定时更新云库配置数据,网络重试失败，已经切换到本地配置方案");
+            System.out.println("网络异常，经过容错后重试失败，现已切本地配置模式，所用配置走本地配置");
             return;
         }
         try {
