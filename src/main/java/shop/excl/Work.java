@@ -192,7 +192,7 @@ public class Work {
         }
         // 大于10次 就不读取数据配置
         if (yunUpdateListCellSum > 6) {
-            String msg = "【甜圆有机】【现场报警】：定时更新云库配置数据，网络异常，经过重试后无效，配置置为本地初始化状态，已断开与云库通信。";
+            String msg = "【甜圆有机】【现场报警】：定时更新云库配置数据，网络异常，经过重试后无效，已断开与云库通信，配置切回本地配置模式";
             sum = 0;
             errorGoBack();
             System.out.println(msg);
