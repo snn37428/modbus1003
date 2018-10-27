@@ -31,7 +31,7 @@ public class AlarmModel {
     /**
      * 点
      */
-    private Integer listCells;
+    private String listCells;
 
     public int getId() {
         return id;
@@ -89,11 +89,11 @@ public class AlarmModel {
         this.listMobies = listMobies;
     }
 
-    public Integer getListCells() {
+    public String getListCells() {
         return listCells;
     }
 
-    public void setListCells(Integer listCells) {
+    public void setListCells(String listCells) {
         this.listCells = listCells;
     }
 }

@@ -31,7 +31,6 @@ public class Work {
     @Autowired
     private TaskYunMapper taskYunMapper;
 
-
     /**
      * 定时任务work更新配置的初始化状态
      * true：更更新云库
@@ -84,7 +83,6 @@ public class Work {
      */
     private static int alarmReadException;
 
-
     /**
      * 写云库数据异常 计数器
      */
@@ -114,14 +112,13 @@ public class Work {
         }
         // 根据配置点读取本地数据
         try {
-            System.out.println("(((((((((((((原始配置" + JSONObject.toJSONString(sysCellList));
             for (int i = 0; i < sysCellList.length; i++) {
                 CellModel cellModel = new CellModel();
                 cellModel.setId(sysCellList[i]);
                 Thread.sleep(30);
                 List<CellModel> rs = taskMapper.selectById(cellModel);
                 if (CollectionUtils.isEmpty(rs)) {
-                    System.out.println("Work.sysTOYun，本地数据库读出来的数据少于，配置点的个数。缺失configId： " + (sysCellList[i]));
+//                    System.out.println("Work.sysTOYun，本地数据库读出来的数据少于，配置点的个数。缺失configId： " + (sysCellList[i]));
                     continue;
                 }
                 listCellModel.add(rs.get(0));
@@ -187,17 +184,17 @@ public class Work {
             System.out.println("Work.sysWork2, 更新云库配置表失败");
             yunUpdateListCellSum++;
         }
-        if (yunUpdateListCellSum > 3 && yunUpdateListCellSum <= 6) {
+        if (yunUpdateListCellSum > 3 && yunUpdateListCellSum < 6) {
             sum++;
             String msg = "【甜圆有机】【现场报警】：定时更新云库配置数据，网络异常，远程读取失败，AlarmWork告警，第" + sum + "次。";
             System.out.println(msg);
             sendQuantiyAlarmInfo(msg, getListMobies());
         }
         // 大于10次 就不读取数据配置
-        if (yunUpdateListCellSum > 10) {
+        if (yunUpdateListCellSum > 6) {
             String msg = "【甜圆有机】【现场报警】：定时更新云库配置数据，网络异常，经过重试后无效，配置置为本地初始化状态，已断开与云库通信。";
-            cronReadYUNConfigSwitch = false;
             sum = 0;
+            errorGoBack();
             System.out.println(msg);
             sendQuantiyAlarmInfo(msg, getListMobies());
         }
@@ -254,12 +251,11 @@ public class Work {
                 System.out.println("更新云配置到本地失败，原因为读取数据库配置，第一条数据，采集点列表为空");
                 return;
             }
-            String sptList = yunUpdateListCellModel.get(0).getManSwitch();
+            String sptList = yunUpdateListCellModel.get(0).getListCells();
             String[] sysCell = sptList.toString().split("\\,");
-            System.out.println(")))))))))))))))" + JSONObject.toJSONString(sysCell));
             if (sysCell.length != 0) {
                 sysCellList = sysCell;
-                System.out.println("更新云配置到本地，采集点更新成功");
+                //System.out.println("更新云配置到本地，采集点更新成功");
             }
         } catch (Exception e) {
             System.out.println("更新云配置到本地，更新采集点异常" + e);
@@ -271,6 +267,8 @@ public class Work {
      * 同步云库数据失败后，回滚配置。
      */
     public void errorGoBack() {
+        // 请求远程配置开关
+        cronReadYUNConfigSwitch = false;
         // 回滚采集点
         setSysCellList(readExcelService.getSysCellList());
         // 回滚主开关
