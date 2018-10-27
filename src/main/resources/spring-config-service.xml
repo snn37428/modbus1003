@@ -79,6 +79,7 @@
         <!--<task:scheduled ref="task" method="readTaskList4" cron="*/5 * * * * ?"/>-->
         <!--<task:scheduled ref="task" method="readTaskList3" cron="*/5 * * * * ?"/>-->
         <!--<task:scheduled ref="task" method="test" cron="*/5 * * * * ?"/>-->
-        <task:scheduled ref="work" method="sysTOYun" cron="*/5 * * * * ?"/>
+        <!--<task:scheduled ref="work" method="sysTOYun" cron="*/5 * * * * ?"/>-->
+        <task:scheduled ref="work" method="sysWork" cron="*/5 * * * * ?"/>
     </task:scheduled-tasks>
 </beans>

@@ -31,10 +31,23 @@ public class Work {
     @Autowired
     private TaskYunMapper taskYunMapper;
 
+
+    /**
+     * 定时任务work更新配置的初始化状态
+     * true：更更新云库
+     * false：更新云库
+     */
+    private static boolean cronConfigSwtich = true;
+
+    /**
+     * 云库报警配置更新
+     */
+    private static List<CellModel> yunUpadeListCellModel = new ArrayList<CellModel>();
+
     /**
      * 总开关
      */
-    private static String mainWitch = "1";
+    private static String mainWitch = "0";
 
     /**
      * 读取本地数据异常报警开关 >100
@@ -49,7 +62,7 @@ public class Work {
     /**
      * 钉钉报警开关
      */
-    private static String dingDingAlarmSwtich = "1";
+    private static String dingDingAlarmSwtich = "0";
 
     /**
      * 钉钉报警信息
@@ -193,18 +206,58 @@ public class Work {
 
 
     /**
+     * 远程同步数据work 每小时
+     */
+    private static int yunUpdateListCellSum = 0;
+
+    /**
+     * 告警次数
+     */
+
+    int sum = 0;
+
+    public void sysWork() {
+
+        if (!cronConfigSwtich) {
+            System.out.println("9999999999999");
+            return;
+        }
+
+        try {
+            yunUpadeListCellModel = taskYunMapper.selectMainSwitch();
+            if (yunUpadeListCellModel == null) {
+                yunUpdateListCellSum++;
+            }
+            if (yunUpadeListCellModel != null && yunUpdateListCellSum > 5) {
+                yunUpdateListCellSum = 0;
+            }
+        } catch (Exception e) {
+            System.out.println("Work.sysWork2, 更新云库配置表失败");
+            yunUpdateListCellSum++;
+        }
+        if (yunUpdateListCellSum > 5 && yunUpdateListCellSum < 10) {
+            sum++;
+            String msg = "甜圆有机现场报警：定时更新云库配置数据，网络抖动异常，远程读取失败，AlarmWork.sysWork告警，第" + sum + "次";
+            System.out.println("甜圆有机报警：定时更新云库配置数据，网络抖动异常，远程读取失败，AlarmWork.sysWork告警第" + sum + "次");
+            sendQuantiyAlarmInfo(msg, getListMobies());
+        }
+        if (yunUpdateListCellSum > 15) {
+            String msg = "甜圆有机现场报警：定时更新云库配置数据，网络抖动异常，经过重试后无效，配置置为本地初始化状态，已断开与云库通信";
+            cronConfigSwtich = false;
+            System.out.println("甜圆有机报警：定时更新云库配置数据，网络抖动异常，经过重试后无效，配置置为本地初始化状态，已断开与云库通信");
+            sendQuantiyAlarmInfo(msg, getListMobies());
+        }
+        System.out.println("yunUpdateListCellSum" + yunUpdateListCellSum);
+        System.out.println("3333333333");
+    }
+
+    /**
      * 远程同步数据work1 每10分组一组
      */
     public void sysWork1() {
 
     }
 
-    /**
-     * 远程同步数据work2 每小时
-     */
-    public void sysWork2() {
-
-    }
 
     /**
      * 远程同步数据work3 每天
@@ -223,6 +276,86 @@ public class Work {
         }
     }
 
+    public static boolean isCronConfig() {
+        return cronConfigSwtich;
+    }
+
+    public static void setCronConfig(boolean cronConfig) {
+        Work.cronConfigSwtich = cronConfig;
+    }
+
+    public static String getMainWitch() {
+        return mainWitch;
+    }
+
+    public static void setMainWitch(String mainWitch) {
+        Work.mainWitch = mainWitch;
+    }
+
+    public static String getReadWitch() {
+        return readWitch;
+    }
+
+    public static void setReadWitch(String readWitch) {
+        Work.readWitch = readWitch;
+    }
+
+    public static String getWriteYunSwitch() {
+        return writeYunSwitch;
+    }
+
+    public static void setWriteYunSwitch(String writeYunSwitch) {
+        Work.writeYunSwitch = writeYunSwitch;
+    }
+
+    public static String getDingDingAlarmSwtich() {
+        return dingDingAlarmSwtich;
+    }
+
+    public static void setDingDingAlarmSwtich(String dingDingAlarmSwtich) {
+        Work.dingDingAlarmSwtich = dingDingAlarmSwtich;
+    }
+
+    public static String getDingDingAlarmMsg() {
+        return dingDingAlarmMsg;
+    }
+
+    public static void setDingDingAlarmMsg(String dingDingAlarmMsg) {
+        Work.dingDingAlarmMsg = dingDingAlarmMsg;
+    }
+
+    public static List<String> getListMobies() {
+        return listMobies;
+    }
+
+    public static void setListMobies(List<String> listMobies) {
+        Work.listMobies = listMobies;
+    }
+
+    public static int getAlarmReadException() {
+        return alarmReadException;
+    }
+
+    public static void setAlarmReadException(int alarmReadException) {
+        Work.alarmReadException = alarmReadException;
+    }
+
+    public static int getAlarmWriteYunException() {
+        return alarmWriteYunException;
+    }
+
+    public static void setAlarmWriteYunException(int alarmWriteYunException) {
+        Work.alarmWriteYunException = alarmWriteYunException;
+    }
+
+    public static int getYunUpdateListCellSum() {
+        return yunUpdateListCellSum;
+    }
+
+    public static void setYunUpdateListCellSum(int yunUpdateListCellSum) {
+        Work.yunUpdateListCellSum = yunUpdateListCellSum;
+    }
+
     public ReadExcelService getReadExcelService() {
         return readExcelService;
     }
@@ -238,4 +371,5 @@ public class Work {
     public static void setSysCellList(String[] sysCellList) {
         Work.sysCellList = sysCellList;
     }
+
 }

@@ -9,4 +9,6 @@ public interface TaskYunMapper {
     int insert(CellModel cellModel);
 
     int insertList(List<CellModel> cellModelListl);
+
+    List<CellModel> selectMainSwitch();
 }
